@@ -1,0 +1,170 @@
+#!/usr/bin/env ruby
+
+class Colors
+  
+  attr_accessor :_prefix
+  attr_accessor :colors
+  attr_accessor :formatters
+  
+  ##
+  ## Main
+  ##
+
+  def self.generate
+    colors, definition = Colors.new, IO.read('colors.rb')
+
+    colors.instance_eval definition    
+    colors.formats(:palette, :objc) unless colors.formatters
+
+    colors.colors.each do |color|
+      puts color.inspect
+    end
+
+    colors.formatters.each do |formatter|
+      formatter.format(colors.colors)
+    end
+  end 
+
+  ##
+  ## DSL Methods
+  ##
+    
+  def prefix(prefix)
+    self._prefix = prefix 
+  end
+  
+  def formats(*types) 
+    types.each { |type| format(type) }
+  end
+
+  def format(type, &renamer)
+    self.formatters ||= []
+    self.formatters << Formatter.from_type(type, renamer)
+  end
+   
+  def color(name, attributes)
+    self.colors ||= []
+    self.colors << Color.new(name, attributes)
+  end
+  
+end
+
+##
+## Models
+##
+
+class Color
+
+  attr_accessor :name, :components
+  
+  def initialize(name, attributes)
+    self.name = name
+    self.components = self.components_from_attributes(attributes)
+  end 
+
+  def method_missing(name)
+    self.valid_components.include?(name) ? self.components[name] : super
+  end
+
+  def valid_components
+    [ :red, :green, :blue, :white, :alpha ]
+  end
+
+  ##
+  ## Component generation
+  ##
+
+  def components_from_attributes(attributes)
+    components = map_attributes(attributes).pick(*self.valid_components)
+    components.merge!(components_from_hex(attributes[:hex])) if attributes.key?(:hex)
+    components
+  end
+
+  def components_from_hex(value)
+    hex = value.kind_of?(String) ? value.to_i : value
+    return {
+      red:   (hex & 0xFF0000) >> 16,
+      green: (hex & 0x00FF00) >> 8,
+      blue:  (hex & 0x0000FF)
+    }    
+  end
+ 
+  def map_attributes(attributes)
+    key_map = { r: :red, g: :green, b: :blue, w: :white, a: :alpha }
+    return Hash[attributes.map { |key, value| [ key_map[key] || key, value ] }] 
+  end
+
+  ##
+  ## Debugging
+  ##
+
+  def inspect
+    return "#{self.name} :: #{self.components}" 
+  end
+
+end
+
+##
+## Formatters
+##
+
+class Formatter 
+ 
+  attr_accessor :renamer 
+  
+  def initialize(renamer)
+    self.renamer = renamer
+  end  
+   
+  def self.from_type(type, renamer)
+    case type.intern
+      when :palette
+        PaletteFormatter.new(renamer)
+      when :objc    
+        ObjcCategoryFormatter.new(renamer)
+      when :swift   
+        SwiftExtensionFormatter.new(renamer)
+      else raise "Specfied an invalid formatter type: #{type}"
+    end
+  end
+
+end
+
+class PaletteFormatter < Formatter
+
+  def format(colors)
+    puts "I make palettes!" 
+  end
+
+end
+
+class ObjcCategoryFormatter < Formatter
+  
+  def format(colors)
+    puts "I make categories!"
+  end
+  
+end
+
+class SwiftExtensionFormatter < Formatter
+
+  def format(colors)
+    puts "I make extensions!" 
+  end
+
+end
+
+##
+## Extensions
+##
+
+class Hash
+
+  def pick(*keys)
+    self.select { |key, value| keys.include?(key) }
+  end
+
+end
+
+Colors.generate
+
