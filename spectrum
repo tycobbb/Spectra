@@ -57,6 +57,7 @@ class Color
   attr_accessor :name, :components
   
   def initialize(name, attributes)
+    puts attributes
     self.name = name
     self.components = self.components_from_attributes(attributes)
   end 
@@ -77,6 +78,7 @@ class Color
     components = map_attributes(attributes).pick(*self.valid_components)
     hex, white = attributes[:hex], components[:white]
 
+    components[:alpha] ||= 1.0
     components.merge!(componentize_hex(hex)) if hex 
     components.merge!(componentize_white(white)) if white
     
