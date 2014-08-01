@@ -3,27 +3,30 @@
 class Colors
   
   attr_accessor :_prefix
-  attr_accessor :colors
-  attr_accessor :formatters
+  attr_accessor :colors, :formatters
   
   ##
   ## Main
   ##
 
-  def self.generate
-    colors, definition = Colors.new, IO.read('colors.rb')
+  def self.generate 
+    Colors.new.generate 
+  end 
 
-    colors.instance_eval definition    
-    colors.formats(:palette, :objc) unless colors.formatters
+  def generate
+    definition = IO.read('colors.rb')
 
-    colors.colors.each do |color|
+    self.instance_eval definition    
+    self.formats(:palette, :objc) unless self.formatters
+
+    self.colors.each do |color|
       puts color.inspect
     end
 
-    colors.formatters.each do |formatter|
-      formatter.format(colors.colors)
+    self.formatters.each do |formatter|
+      puts formatter.format(self.colors, prefix: self._prefix)
     end
-  end 
+  end
 
   ##
   ## DSL Methods
@@ -71,22 +74,40 @@ class Color
   end
 
   ##
-  ## Component generation
+  ## Component Generation
   ##
 
   def components_from_attributes(attributes)
     components = map_attributes(attributes).pick(*self.valid_components)
-    components.merge!(components_from_hex(attributes[:hex])) if attributes.key?(:hex)
-    components
+    hex, white = attributes[:hex], components[:white]
+
+    components.merge!(componentize_hex(hex)) if hex 
+    components.merge!(componentize_white(white)) if white
+    
+    components.each { |key, value| components[key] = normalize(value) }
   end
 
-  def components_from_hex(value)
-    hex = value.kind_of?(String) ? value.to_i : value
+  def componentize_hex(value)
+    hex = value.is_a?(String) ? value.to_i : value
     return {
       red:   (hex & 0xFF0000) >> 16,
       green: (hex & 0x00FF00) >> 8,
       blue:  (hex & 0x0000FF)
     }    
+  end
+
+  def componentize_white(value)
+    return { red: value, green: value, blue: value }
+  end
+
+  ##
+  ## Helpers
+  ##
+
+  def normalize(number)
+    number = number / 255.0 if number.is_a?(Fixnum)
+    raise "component #{number} is not in a legible format" unless number.is_a?(Float)
+    number.limit(0.0..1.0) 
   end
  
   def map_attributes(attributes)
@@ -115,6 +136,32 @@ class Formatter
   def initialize(renamer)
     self.renamer = renamer
   end  
+
+  ##
+  ## Formatting
+  ## 
+
+  def format(colors, attributes)
+    output = self.prefix(attributes)
+    colors.each { |color| output << self.format_color(format_name(color, attributes), color) }
+    output + self.suffix(attributes)
+  end
+
+  def format_name(color, attributes)
+    self.renamer.call(color.name, attributes[:prefix])
+  end
+
+  def prefix(attributes)
+    ""
+  end
+
+  def suffix(attributes)
+    ""
+  end
+
+  ##
+  ## Factory
+  ##
    
   def self.from_type(type, renamer)
     case type.intern
@@ -132,25 +179,30 @@ end
 
 class PaletteFormatter < Formatter
 
-  def format(colors)
-    puts "I make palettes!" 
+  def prefix(attributes)
+    "11\n"
+  end
+
+  def format_color(name, color)
+    components = [ color.red, color.green, color.blue, color.alpha ]
+    components.inject('0') { |memo, value| memo << ' ' << '%.3f' % (value || 0.0) } + " #{name}\n"
+  end
+
+  def format_value(value)
+    value ? '%.3f' % value : '0.000'  
+  end
+
+  def renamer
+    @renamer ||= lambda { |name, prefix| name.to_s.split('_').each(&:capitalize).join('') }
   end
 
 end
 
-class ObjcCategoryFormatter < Formatter
-  
-  def format(colors)
-    puts "I make categories!"
-  end
-  
+class ObjcCategoryFormatter < Formatter 
+ 
 end
 
 class SwiftExtensionFormatter < Formatter
-
-  def format(colors)
-    puts "I make extensions!" 
-  end
 
 end
 
@@ -163,6 +215,14 @@ class Hash
   def pick(*keys)
     self.select { |key, value| keys.include?(key) }
   end
+
+end
+
+class Numeric
+  
+  def limit(range)
+    self > range.max ? range.max : self < range.min ? range.min : self
+  end 
 
 end
 
