@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
-class Colors
+##
+## Models
+##
+
+class Spectrum 
   
   attr_accessor :_prefix
   attr_accessor :colors, :formatters
@@ -10,7 +14,7 @@ class Colors
   ##
 
   def self.generate 
-    Colors.new.generate 
+    Spectrum.new.generate 
   end 
 
   def generate
@@ -24,7 +28,7 @@ class Colors
     end
 
     self.formatters.each do |formatter|
-      puts formatter.format(self.colors, prefix: self._prefix)
+      puts formatter.format(self)
     end
   end
 
@@ -51,10 +55,6 @@ class Colors
   end
   
 end
-
-##
-## Models
-##
 
 class Color
 
@@ -131,31 +131,39 @@ end
 
 class Formatter 
  
-  attr_accessor :renamer 
+  attr_accessor :renamer
+  attr_accessor :post_prefix_newlines, :intercolor_newlines, :pre_suffix_newlines
   
   def initialize(renamer)
     self.renamer = renamer
-  end  
+    self.post_prefix_newlines = self.intercolor_newlines = self.pre_suffix_newlines = 1
+  end 
 
   ##
   ## Formatting
   ## 
 
-  def format(colors, attributes)
-    output = self.prefix(attributes)
-    colors.each { |color| output << self.format_color(format_name(color, attributes), color) }
-    output + self.suffix(attributes)
+  def format(spectrum)
+    output = self.prefix(spectrum) + "\n" * self.post_prefix_newlines
+    spectrum.colors.each_with_index { |color, index| output << format_indexed_color(color, index, spectrum) }
+    output + "\n" * self.pre_suffix_newlines + self.suffix(spectrum)
   end
 
-  def format_name(color, attributes)
-    self.renamer.call(color.name, attributes[:prefix])
+  def format_indexed_color(color, index, spectrum)
+    name     = self.format_name(color, spectrum)
+    newlines = index < spectrum.colors.length - 1 ? self.intercolor_newlines : 0
+    self.format_color(color, name) + "\n" * newlines
   end
 
-  def prefix(attributes)
+  def format_name(color, spectrum)
+    self.renamer.call(color.name, spectrum._prefix)
+  end
+
+  def prefix(spectrum)
     ""
   end
 
-  def suffix(attributes)
+  def suffix(spectrum)
     ""
   end
 
@@ -179,13 +187,13 @@ end
 
 class PaletteFormatter < Formatter
 
-  def prefix(attributes)
-    "11\n"
+  def prefix(spectrum)
+    "11"
   end
 
-  def format_color(name, color)
+  def format_color(color, name)
     components = [ color.red, color.green, color.blue, color.alpha ]
-    components.inject('0') { |memo, value| memo << ' ' << '%.3f' % (value || 0.0) } + " #{name}\n"
+    components.inject('0') { |memo, value| memo << ' ' << '%.3f' % (value || 0.0) } + " #{name}"
   end
 
   def format_value(value)
@@ -205,18 +213,20 @@ class ObjcCategoryFormatter < Formatter
   def initialize(renamer, is_header) 
     super(renamer)
     self.is_header = is_header 
+    self.post_prefix_newlines = self.pre_suffix_newlines = 2
+    self.intercolor_newlines  = is_header ? 1 : 2
   end
 
-  def prefix(attributes)
-    "@#{self.is_header ? 'interface' : 'implementation'} UIColor (#{attributes[:prefix].upcase}Color)\n"
+  def prefix(spectrum)
+    "@#{self.is_header ? 'interface' : 'implementation'} UIColor (#{spectrum._prefix.upcase}Color)"
   end
 
-  def format_color(name, color)
+  def format_color(color, name)
     signature = "- (UIColor *)#{name}"
     if self.is_header
-      "\n#{signature};"
+      "#{signature};"
     else
-      "\n#{signature}\n{\n    return #{self.format_implementation(color)};\n}\n"
+      "#{signature}\n{\n    return #{self.format_implementation(color)};\n}"
     end
   end
 
@@ -233,7 +243,7 @@ class ObjcCategoryFormatter < Formatter
   end
 
   def suffix(attributes)
-    "#{"\n" if self.is_header}\n@end"
+    "@end"
   end
 
   def renamer
@@ -276,5 +286,5 @@ class Symbol
 
 end
 
-Colors.generate
+Spectrum.generate
 
