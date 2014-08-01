@@ -42,7 +42,7 @@ class Colors
 
   def format(type, &renamer)
     self.formatters ||= []
-    self.formatters << Formatter.from_type(type, renamer)
+    self.formatters.concat(Formatter.from_type(type, renamer))
   end
    
   def color(name, attributes)
@@ -166,11 +166,11 @@ class Formatter
   def self.from_type(type, renamer)
     case type.intern
       when :palette
-        PaletteFormatter.new(renamer)
+        [ PaletteFormatter.new(renamer) ]
       when :objc    
-        ObjcCategoryFormatter.new(renamer)
+        [ ObjcCategoryFormatter.new(renamer, true), ObjcCategoryFormatter.new(renamer, false) ]
       when :swift   
-        SwiftExtensionFormatter.new(renamer)
+        [ SwiftExtensionFormatter.new(renamer) ]
       else raise "Specfied an invalid formatter type: #{type}"
     end
   end
@@ -189,16 +189,56 @@ class PaletteFormatter < Formatter
   end
 
   def format_value(value)
-    value ? '%.3f' % value : '0.000'  
+    '%.3f' % (value || 0.0)
   end
 
   def renamer
-    @renamer ||= lambda { |name, prefix| name.to_s.split('_').each(&:capitalize).join('') }
+    @renamer ||= lambda { |name, prefix| name.camelize(true) }
   end
 
 end
 
 class ObjcCategoryFormatter < Formatter 
+  
+  attr_accessor :is_header
+
+  def initialize(renamer, is_header) 
+    super(renamer)
+    self.is_header = is_header 
+  end
+
+  def prefix(attributes)
+    "@#{self.is_header ? 'interface' : 'implementation'} UIColor (#{attributes[:prefix].upcase}Color)\n"
+  end
+
+  def format_color(name, color)
+    signature = "- (UIColor *)#{name}"
+    if self.is_header
+      "\n#{signature};"
+    else
+      "\n#{signature}\n{\n    return #{self.format_implementation(color)};\n}\n"
+    end
+  end
+
+  def format_implementation(color)
+    if color.white
+      "[UIColor colorWithWhite:#{format_value(color.white)} alpha:#{format_value(color.alpha)}]"  
+    else
+      "[UIColor colorWithRed:#{format_value(color.red)} green:#{format_value(color.green)} blue:#{format_value(color.blue)} alpha:#{format_value(color.alpha)}]"
+    end      
+  end
+
+  def format_value(value)
+    '%.2f' % (value || 0.0) 
+  end
+
+  def suffix(attributes)
+    "#{"\n" if self.is_header}\n@end"
+  end
+
+  def renamer
+    @renamer ||= lambda { |name, prefix| "#{prefix}_#{name.camelize(false)}Color" }
+  end
  
 end
 
@@ -223,6 +263,16 @@ class Numeric
   def limit(range)
     self > range.max ? range.max : self < range.min ? range.min : self
   end 
+
+end
+
+class Symbol 
+  
+  def camelize(pascal)
+    self.to_s.split('_').each_with_index do |component, index| 
+      !pascal && index == 0 ? component : component.capitalize 
+    end.join('') 
+  end
 
 end
 
