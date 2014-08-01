@@ -49,7 +49,19 @@ class Spectrum
     self.colors ||= []
     self.colors << Color.new(name, attributes)
   end
-  
+
+  def components(*components)
+    components.hash_from(:red, :green, :blue, :alpha)
+  end
+
+  def hex(*components)
+    components.hash_from(:hex, :alpha)
+  end
+
+  def white(*components)
+    components.hash_from(:white, :alpha)
+  end
+ 
 end
 
 class Color
@@ -344,6 +356,14 @@ end
 ##
 ## Extensions
 ##
+
+class Array
+  
+  def hash_from(*keys)
+    Hash[ keys.first(self.length).zip(self) ]
+  end
+
+end
 
 class Hash
 
