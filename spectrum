@@ -7,13 +7,13 @@
 class Spectrum 
   
   attr_accessor :_prefix
-  attr_accessor :colors, :formatters
+  attr_accessor :colors, :serializers
   
   ##
   ## Main
   ##
 
-  def self.generate 
+  def self.main
     Spectrum.new.generate 
   end 
 
@@ -21,14 +21,10 @@ class Spectrum
     definition = IO.read('colors.rb')
 
     self.instance_eval definition    
-    self.formats(:palette, :objc) unless self.formatters
+    self.formats(:palette, :objc) unless self.serializers
 
-    self.colors.each do |color|
-      puts color.inspect
-    end
-
-    self.formatters.each do |formatter|
-      puts formatter.format(self)
+    self.serializers.each do |serializer|
+      serializer.serialize(self)
     end
   end
 
@@ -44,9 +40,9 @@ class Spectrum
     types.each { |type| format(type) }
   end
 
-  def format(type, &renamer)
-    self.formatters ||= []
-    self.formatters.concat(Formatter.from_type(type, renamer))
+  def format(type, filename = nil, &renamer)
+    self.serializers ||= []
+    self.serializers.concat(Serializer.from_type(type, filename, renamer))
   end
    
   def color(name, attributes)
@@ -126,6 +122,45 @@ class Color
 end
 
 ##
+## Serializers
+##
+
+class Serializer
+
+  attr_accessor :formatter, :path
+
+  def initialize(attributes)
+    self.formatter = Formatter.from_attributes(attributes)
+    self.path      = attributes[:path]
+  end
+
+  def serialize(spectrum)
+    text = self.formatter.format(spectrum)
+    path = (self.path || self.formatter.path) + self.formatter.filename(spectrum)
+    File.open(path, 'w+') { |file| file.write(text) }
+  end
+
+  ##
+  ## Factory
+  ##
+
+  def self.from_type(type, path, renamer)
+    attributes = { path: path, formatter_type: type, renamer: renamer }
+
+    case type.intern
+      when :palette
+        [ Serializer.new(attributes) ]
+      when :objc
+        [ Serializer.new(attributes.merge(is_header: true)), Serializer.new(attributes) ]
+      when :swift
+        [ Serializer.new(attributes) ]
+      else raise "Specfied an invalid format: #{type}"
+    end
+  end
+
+end
+
+##
 ## Formatters
 ##
 
@@ -134,8 +169,8 @@ class Formatter
   attr_accessor :renamer
   attr_accessor :post_prefix_newlines, :intercolor_newlines, :pre_suffix_newlines
   
-  def initialize(renamer)
-    self.renamer = renamer
+  def initialize(attributes)
+    self.renamer = attributes[:renamer] 
     self.post_prefix_newlines = self.intercolor_newlines = self.pre_suffix_newlines = 1
   end 
 
@@ -148,6 +183,14 @@ class Formatter
     spectrum.colors.each_with_index { |color, index| output << format_indexed_color(color, index, spectrum) }
     output + "\n" * self.pre_suffix_newlines + self.suffix(spectrum)
   end
+
+  def path
+    ''
+  end
+  
+  ##
+  ## Helpers
+  ##
 
   def format_indexed_color(color, index, spectrum)
     name     = self.format_name(color, spectrum)
@@ -171,21 +214,24 @@ class Formatter
   ## Factory
   ##
    
-  def self.from_type(type, renamer)
-    case type.intern
+  def self.from_attributes(attributes)
+    case attributes[:formatter_type].intern
       when :palette
-        [ PaletteFormatter.new(renamer) ]
+        PaletteFormatter.new(attributes)
       when :objc    
-        [ ObjcCategoryFormatter.new(renamer, true), ObjcCategoryFormatter.new(renamer, false) ]
+        ObjcCategoryFormatter.new(attributes)
       when :swift   
-        [ SwiftExtensionFormatter.new(renamer) ]
-      else raise "Specfied an invalid formatter type: #{type}"
+        SwiftExtensionFormatter.new(attributes)
     end
   end
 
 end
 
 class PaletteFormatter < Formatter
+  
+  ##
+  ## Formatting Hooks
+  ##
 
   def prefix(spectrum)
     "11"
@@ -196,12 +242,28 @@ class PaletteFormatter < Formatter
     components.inject('0') { |memo, value| memo << ' ' << '%.3f' % (value || 0.0) } + " #{name}"
   end
 
-  def format_value(value)
-    '%.3f' % (value || 0.0)
-  end
-
   def renamer
     @renamer ||= lambda { |name, prefix| name.camelize(true) }
+  end
+
+  ##
+  ## Pathing Hooks
+  ##
+  
+  def path
+    "#{Dir.home}/Library/Colors/"
+  end
+
+  def filename(spectrum)
+    "#{spectrum._prefix}-palette.clr"
+  end
+
+  ##
+  ## Helpers
+  ##
+
+  def format_value(value)
+    '%.3f' % (value || 0.0)
   end
 
 end
@@ -210,12 +272,17 @@ class ObjcCategoryFormatter < Formatter
   
   attr_accessor :is_header
 
-  def initialize(renamer, is_header) 
-    super(renamer)
-    self.is_header = is_header 
+  def initialize(attributes)
+    super(attributes)
+    self.is_header = attributes[:is_header] 
+
     self.post_prefix_newlines = self.pre_suffix_newlines = 2
     self.intercolor_newlines  = is_header ? 1 : 2
   end
+  
+  ##
+  ## Subclassing Hooks
+  ##
 
   def prefix(spectrum)
     "@#{self.is_header ? 'interface' : 'implementation'} UIColor (#{spectrum._prefix.upcase}Color)"
@@ -230,6 +297,26 @@ class ObjcCategoryFormatter < Formatter
     end
   end
 
+  def suffix(attributes)
+    "@end"
+  end
+
+  def renamer
+    @renamer ||= lambda { |name, prefix| "#{prefix}_#{name.camelize(false)}Color" }
+  end
+
+  ##
+  ## Pathing Hooks
+  ##
+
+  def filename(spectrum)
+    "UIColor+#{spectrum._prefix.upcase}Color.#{self.is_header ? 'h' : 'm'}"
+  end
+  
+  ##
+  ## Helpers
+  ##
+
   def format_implementation(color)
     if color.white
       "[UIColor colorWithWhite:#{format_value(color.white)} alpha:#{format_value(color.alpha)}]"  
@@ -240,14 +327,6 @@ class ObjcCategoryFormatter < Formatter
 
   def format_value(value)
     '%.2f' % (value || 0.0) 
-  end
-
-  def suffix(attributes)
-    "@end"
-  end
-
-  def renamer
-    @renamer ||= lambda { |name, prefix| "#{prefix}_#{name.camelize(false)}Color" }
   end
  
 end
@@ -286,5 +365,5 @@ class Symbol
 
 end
 
-Spectrum.generate
+Spectrum.main
 
