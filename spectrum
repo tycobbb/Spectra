@@ -311,7 +311,7 @@ class ObjcCategoryFormatter < Formatter
   end
 
   def format_color(color, name)
-    signature = "- (UIColor *)#{name}"
+    signature = "+ (UIColor *)#{name}"
     if self.is_header
       "#{signature};"
     else
@@ -388,7 +388,7 @@ end
 class Symbol 
   
   def camelize(pascal)
-    self.to_s.split('_').each_with_index do |component, index| 
+    self.to_s.split('_').map.with_index do |component, index| 
       !pascal && index == 0 ? component : component.capitalize 
     end.join('') 
   end
