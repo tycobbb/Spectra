@@ -40,9 +40,9 @@ class Spectrum
     types.each { |type| format(type) }
   end
 
-  def format(type, filename = nil, &renamer)
+  def format(type, path = nil, &renamer)
     self.serializers ||= []
-    self.serializers.concat(Serializer.from_type(type, filename, renamer))
+    self.serializers.concat(Serializer.from_type(type, path, renamer))
   end
    
   def color(name, attributes)
@@ -57,7 +57,6 @@ class Color
   attr_accessor :name, :components
   
   def initialize(name, attributes)
-    puts attributes
     self.name = name
     self.components = self.components_from_attributes(attributes)
   end 
@@ -129,17 +128,22 @@ end
 
 class Serializer
 
-  attr_accessor :formatter, :path
+  attr_accessor :formatter, :base_path
 
   def initialize(attributes)
     self.formatter = Formatter.from_attributes(attributes)
-    self.path      = attributes[:path]
+    self.base_path = attributes[:path]
   end
 
   def serialize(spectrum)
-    text = self.formatter.format(spectrum)
-    path = (self.path || self.formatter.path) + self.formatter.filename(spectrum)
+    path, text = self.resource_path(spectrum), self.formatter.format(spectrum)
     File.open(path, 'w+') { |file| file.write(text) }
+  end
+
+  def resource_path(spectrum)
+    base_path = self.base_path || self.formatter.path
+    base_path << '/' unless base_path.end_with?('/')
+    base_path + self.formatter.filename(spectrum)
   end
 
   ##
@@ -187,7 +191,7 @@ class Formatter
   end
 
   def path
-    ''
+    './'
   end
   
   ##
