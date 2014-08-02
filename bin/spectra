@@ -1,6 +1,24 @@
 #!/usr/bin/env ruby
 
 require 'spectra'
+require 'ostruct'
+require 'optparse'
 
-Spectra.generate
+options = OpenStruct.new
+options.verbose = false
+
+OptionParser.new do |opts|
+  opts.banner = 'usage: spectra [-vh]'
+ 
+  opts.on('-v', '--verbose', 'Enables verbose debugging output') do |flag|
+    options.verbose = true
+  end
+  
+  opts.on('-h', '--help', 'Shows this message') do |flag|
+    puts opts; exit 
+  end
+
+end.parse!(ARGV)
+
+Spectra.generate(options)
 
