@@ -1,7 +1,6 @@
 
 require 'spectra/version'
 require 'models'
-require 'serializer'
 
 module Spectra
   

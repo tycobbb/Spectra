@@ -20,5 +20,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'bundler', '~> 1.6'
   gem.add_development_dependency 'rake'
+
+  gem.add_runtime_dependency 'mustache', '~> 0.99.6'
 end
 

@@ -1,4 +1,6 @@
 
+require 'serializer'
+
 module Spectra
 
   module DSL
@@ -14,7 +16,7 @@ module Spectra
       self.serializers ||= []
       self.serializers.concat(Serializer.from_type(type, {
         path: path,
-        formatter: { type: type, renamer: renamer }  
+        template: { type: type, renamer: renamer }  
       }))
     end
      

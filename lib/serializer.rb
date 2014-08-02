@@ -1,27 +1,27 @@
 
 require 'extensions'
-require 'formatters'
+require 'templates/factory'
 
 module Spectra
 
   class Serializer
 
-    attr_accessor :formatter, :base_path
+    attr_accessor :template, :base_path
 
     def initialize(attributes)
       self.base_path = attributes[:path]
-      self.formatter = Formatter.from_attributes(attributes[:formatter])
+      self.template  = Template.from_attributes(attributes[:template])
     end
 
     def serialize(spectrum)
-      path, text = self.resource_path(spectrum), self.formatter.format(spectrum)
+      path, text = self.resource_path(spectrum), self.template.format(spectrum)
       File.open(path, 'w+') { |file| file.write(text) }
     end
 
     def resource_path(spectrum)
-      base_path = self.base_path || self.formatter.path
+      base_path = self.base_path || self.template.path
       base_path << '/' unless base_path.end_with?('/')
-      base_path + self.formatter.filename(spectrum)
+      base_path + self.template.filename(spectrum)
     end
 
     ##
@@ -33,7 +33,7 @@ module Spectra
         when :palette, :swift
           [ Serializer.new(attributes) ]
         when :objc
-          [ Serializer.new(attributes.deep_merge(formatter: { is_header: true })), Serializer.new(attributes) ]
+          [ Serializer.new(attributes.deep_merge(template: { is_header: true })), Serializer.new(attributes) ]
         else raise "Specfied an invalid serializer type: #{type}"
       end
     end
