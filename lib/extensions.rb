@@ -13,6 +13,18 @@ class Hash
     self.select { |key, value| keys.include?(key) }
   end
 
+  def deep_merge(hash)
+    worker = proc do |key, source, update|
+      if source.is_a?(Hash) && update.is_a?(Hash)
+        source.merge(update, &worker)
+      else
+        update
+      end
+    end
+
+    self.merge(hash, &worker)
+  end
+
 end
 
 class Numeric
