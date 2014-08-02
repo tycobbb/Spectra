@@ -11,10 +11,8 @@ module Spectra
 
     include DSL
 
-    def generate
-      definition = IO.read('colors.rb')
-
-      self.instance_eval definition    
+    def generate(definition) 
+      self.instance_eval(definition)
       self.formats(:palette, :objc) unless self.serializers
 
       self.serializers.each do |serializer|

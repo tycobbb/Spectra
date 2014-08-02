@@ -15,6 +15,7 @@ module Spectra
 
     def serialize(spectrum)
       path, text = self.resource_path(spectrum), self.template.format(spectrum)
+      Spectra.logger.debug "writing to #{path}"
       File.open(path, 'w+') { |file| file.write(text) }
     end
 
