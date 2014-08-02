@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'spectra'
+
+Spectra.generate
+
