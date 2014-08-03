@@ -1,4 +1,5 @@
 
+require 'components'
 require 'serializer'
 
 module Spectra
@@ -22,7 +23,8 @@ module Spectra
      
     def color(name, attributes)
       self.colors ||= []
-      self.colors << Color.new(name, attributes)
+      components = Components.componentize(attributes)
+      self.colors << Color.new(name, components)
     end
 
     def components(*components)
