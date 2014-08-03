@@ -13,6 +13,10 @@ OptionParser.new do |opts|
   opts.on('-v', '--verbose', 'Enables verbose debugging output') do |flag|
     options.verbose = true
   end
+
+  opts.on('-d', '--dry-run', 'Processes colors without writing anything to disk') do |flag|
+    options.dry_run = true
+  end
   
   opts.on('-h', '--help', 'Shows this message') do |flag|
     puts opts; exit 

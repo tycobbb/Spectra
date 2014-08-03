@@ -6,23 +6,30 @@ module Spectra
 
   class Serializer
 
-    attr_accessor :template, :base_path
+    attr_accessor :template, :path
 
     def initialize(attributes)
-      self.base_path = attributes[:path]
-      self.template  = Template.from_attributes(attributes[:template])
+      self.path     = attributes[:path]
+      self.template = Template.from_attributes(attributes[:template])
     end
 
-    def serialize(spectrum)
-      path, text = self.resource_path(spectrum), self.template.format(spectrum)
-      Spectra.logger.debug "writing to #{path}"
-      File.open(path, 'w+') { |file| file.write(text) }
+    def serialize(attributes) 
+      text = self.template.render(attributes)
+      path = self.resource_path(attributes)
+
+      Spectra.logger.debug "#{Spectra.options.dry_run ? 'would write' : 'writing'} to: #{path}" 
+
+      if Spectra.options.dry_run
+        Spectra.logger.debug "\n#{text}"
+      else
+        File.open(path, 'w+') { |file| file.write(text) }
+      end
     end
 
-    def resource_path(spectrum)
-      base_path = self.base_path || self.template.path
-      base_path << '/' unless base_path.end_with?('/')
-      base_path + self.template.filename(spectrum)
+    def resource_path(attributes)
+      resource_path = self.path || self.template.path
+      resource_path << '/' unless resource_path.end_with?('/')
+      resource_path + self.template.filename
     end
 
     ##

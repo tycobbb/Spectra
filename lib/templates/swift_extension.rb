@@ -1,11 +1,9 @@
 
-require 'mustache'
 require 'templates/template'
 
 module Spectra
 
-  class SwiftExtension < Mustache
-    include Template
+  class SwiftExtension < Template
  
   end
 

@@ -5,7 +5,7 @@ require 'templates/swift_extension'
 
 module Spectra
 
-  module Template
+  class Template
 
     def self.from_attributes(attributes)
       case attributes[:type].intern
