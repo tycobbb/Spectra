@@ -40,3 +40,16 @@ color :gray,    hex: 0xEEEEEE, a: 0.6
 color :white,   w: 1.0
 color :overlay, r: 0.8, g: 0.7, b: 0.2, a: 0.75
 ```
+
+## Installation
+
+Spectra is published as a Rubygem. Install with `gem`: 
+```ruby
+gem install spectra
+```
+
+Or `bundler`:
+```ruby
+gem 'spectra', '~> 0.1.1'
+```
+
