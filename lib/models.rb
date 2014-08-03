@@ -16,27 +16,36 @@ module Spectra
       self.formats(:palette, :objc) unless self.serializers
 
       self.serializers.each do |serializer|
-        serializer.serialize(self)
+        serializer.serialize({
+          colors: self.colors,
+          prefix: self._prefix,  
+        })
       end
     end 
 
   end
 
   class Color
-
+    
     attr_accessor :name, :components
+
+    class << self
+      attr_accessor :valid_components
+    end
+
+    self.valid_components = [ :red, :green, :blue, :white, :alpha ]
     
     def initialize(name, attributes)
       self.name = name
       self.components = self.components_from_attributes(attributes)
     end 
 
-    def method_missing(name)
-      self.valid_components.include?(name) ? self.components[name] : super
+    def respond_to?(name)
+      super || self.class.valid_components.include?(name)
     end
 
-    def valid_components
-      [ :red, :green, :blue, :white, :alpha ]
+    def method_missing(name)
+      self.class.valid_components.include?(name) ? self.components[name] : super
     end
 
     ##
@@ -44,7 +53,7 @@ module Spectra
     ##
 
     def components_from_attributes(attributes)
-      components = map_attributes(attributes).pick(*self.valid_components)
+      components = map_attributes(attributes).pick(*self.class.valid_components)
       hex, white = attributes[:hex], components[:white]
 
       components[:alpha] ||= 1.0

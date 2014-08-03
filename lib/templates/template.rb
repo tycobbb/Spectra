@@ -1,52 +1,65 @@
 
+require 'mustache'
+
 module Spectra
 
-  module Template 
+  class Template < Mustache
    
-    attr_accessor :renamer
-    attr_accessor :post_prefix_newlines, :intercolor_newlines, :pre_suffix_newlines
+    attr_accessor :renamer, :colors, :prefix
     
     def initialize(attributes)
       self.renamer = attributes[:renamer] 
-      self.post_prefix_newlines = self.intercolor_newlines = self.pre_suffix_newlines = 1
     end 
 
     ##
-    ## Formatting
+    ## Mustache
+    ##
+
+    self.path = 'lib/templates'
+     
+    def self.template_name
+       super.split('/').last
+    end 
+    
+    ##
+    ## Rendering 
     ## 
 
-    def format(spectrum)
-      output = self.prefix(spectrum) + "\n" * self.post_prefix_newlines
-      spectrum.colors.each_with_index { |color, index| output << format_indexed_color(color, index, spectrum) }
-      output + "\n" * self.pre_suffix_newlines + self.suffix(spectrum)
+    def render(attributes)
+      self.prefix = attributes[:prefix]
+      self.colors = parse_colors(attributes[:colors])
+      super() # offload to Mustache
     end
 
-    def path
-      './'
+    def parse_colors(colors)
+      colors.map { |color| self.parse_color(color) }
+    end
+
+    def parse_color(color)
+      copy = color.clone  
+      copy.name = self.format_color_name(color)
+      copy.components = color.components.map do |key, value| 
+        [ key, self.format_color_value(value) ] 
+      end.to_h
+      copy
+    end
+
+    def format_color_name(color)
+      self.renamer.call(color.name, self.prefix)
+    end
+
+    def format_color_value(value)
+      '%.2f' % (value || 0.0)
     end
     
     ##
-    ## Helpers
+    ## Pathing
     ##
 
-    def format_indexed_color(color, index, spectrum)
-      name     = self.format_name(color, spectrum)
-      newlines = index < spectrum.colors.length - 1 ? self.intercolor_newlines : 0
-      self.format_color(color, name) + "\n" * newlines
+    def path 
+      './'
     end
-
-    def format_name(color, spectrum)
-      self.renamer.call(color.name, spectrum._prefix)
-    end
-
-    def prefix(spectrum)
-      ""
-    end
-
-    def suffix(spectrum)
-      ""
-    end
-
+    
   end
 
 end
