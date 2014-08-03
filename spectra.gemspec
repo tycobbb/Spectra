@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Spectra::VERSION
   gem.authors       = ['Ty Cobb']
   gem.email         = ['ty.cobb.m@gmail.com']
-  gem.summary       = %q{Color DSL that outputs palette, Objective-C categories, and Swift Extensions}
-  gem.description   = %q{That's all she wrote.}
+  gem.summary       = %q{DSL for synchronizng color palettes, Objective-C categories, and Swift extensions}
+  gem.description   = %q{DSL for synchronzing color palettes, Objective-C categories, and Swift extensions}
   gem.homepage      = 'https://github.com/derkis/Spectrum'
   gem.license       = 'MIT'
 
