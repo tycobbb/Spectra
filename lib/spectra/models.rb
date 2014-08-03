@@ -1,7 +1,7 @@
 
-require 'extensions'
-require 'components'
-require 'dsl'
+require 'spectra/extensions'
+require 'spectra/components'
+require 'spectra/dsl'
 
 module Spectra
 

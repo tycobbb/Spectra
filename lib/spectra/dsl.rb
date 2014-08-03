@@ -1,6 +1,6 @@
 
-require 'components'
-require 'serializer'
+require 'spectra/components'
+require 'spectra/serializer'
 
 module Spectra
 

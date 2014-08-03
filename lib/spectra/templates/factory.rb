@@ -1,7 +1,7 @@
 
-require 'templates/palette'
-require 'templates/objc_category'
-require 'templates/swift_extension'
+require 'spectra/templates/palette'
+require 'spectra/templates/objc_category'
+require 'spectra/templates/swift_extension'
 
 module Spectra
 
