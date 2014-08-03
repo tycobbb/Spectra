@@ -1,7 +1,7 @@
 
 require 'spectra/version'
-require 'logging'
-require 'models'
+require 'spectra/logger'
+require 'spectra/models'
 
 module Spectra
   

@@ -1,6 +1,6 @@
 
-require 'extensions'
-require 'templates/factory'
+require 'spectra/extensions'
+require 'spectra/templates/factory'
 
 module Spectra
 

@@ -1,5 +1,5 @@
 
-require 'templates/template'
+require 'spectra/templates/template'
 
 module Spectra
 
