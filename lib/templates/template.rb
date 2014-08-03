@@ -59,6 +59,14 @@ module Spectra
     def path 
       './'
     end
+
+    ##
+    ## Debugging
+    ##
+
+    def to_s 
+      "<template: #{self.class.name} renamer: #{@renamer}>"
+    end
     
   end
 

@@ -14,14 +14,14 @@ prefix :spc # subsitute your desired prefix
 Specifying output formats (optional, defaults to `:palette` and `:objc`):
 ```ruby
 
-# if you don't care about options
+## if you don't care about options
 formats :palette, :swift
 
-# if you want to specify the output directory
-format  :objc, 'path/to/categories'
+## if you want to specify the output directory
+format :objc, 'path/to/categories'
 
-# if you want to customize the method/color names
-format  :swift, 'path/to/extensions' do |name, prefix|
+## if you want to customize the method/color names
+format :swift, 'path/to/extensions' do |name, prefix|
   name.camelize(true) # SyntacticRogueRed
 end
 ```

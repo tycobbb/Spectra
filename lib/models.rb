@@ -47,8 +47,8 @@ module Spectra
     ## Debugging
     ##
 
-    def inspect
-      return "#{self.name} :: #{self.components}" 
+    def to_s
+      "<color: #{name} colors: #{components.values_at(:red, :green, :blue, :alpha).map{|v| v.is_a?(String) ? v : '%.2f' % (v || 0.0) }}>" 
     end
 
   end

@@ -17,7 +17,6 @@ module Spectra
       components.merge!(self.componentize_hex(hex)) if hex 
       components.merge!(self.componentize_white(white)) if white
       
-      puts components  
       components.each { |key, value| components[key] = self.normalize(value) }
     end
 
