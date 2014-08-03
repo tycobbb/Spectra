@@ -14,7 +14,7 @@ module Spectra
     logger.level = options.verbose ? Logger::DEBUG : Logger::INFO
 
     begin
-      definition = IO.read('colors.rb')
+      definition = IO.read('spectrum.rb')
     rescue Exception => execption
       logger.terminate "Failed to read spectrum.rb file: #{execption}" 
     end 
