@@ -15,16 +15,23 @@ module Spectra
 
     def format(type, path = nil, &renamer)
       self.serializers ||= []
-      self.serializers.concat(Serializer.from_type(type, {
+      
+      serializers = Serializer.from_type(type, {
         path: path,
         template: { type: type, renamer: renamer }  
-      }))
+      })
+      self.serializers.concat(serializers)
+      
+      serializers.each { |serializer| Spectra.logger.debug "dsl add: #{serializer}" }
     end
      
     def color(name, attributes)
       self.colors ||= []
-      components = Components.componentize(attributes)
-      self.colors << Color.new(name, components)
+      
+      color = Color.new(name, Components.componentize(attributes))
+      self.colors << color
+
+      Spectra.logger.debug "dsl add: #{color}"
     end
 
     def components(*components)

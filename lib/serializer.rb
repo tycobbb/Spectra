@@ -13,7 +13,7 @@ module Spectra
       self.template = Template.from_attributes(attributes[:template])
     end
 
-    def serialize(attributes) 
+    def serialize(attributes)
       text = self.template.render(attributes)
       path = self.resource_path(attributes)
 
@@ -44,6 +44,14 @@ module Spectra
           [ Serializer.new(attributes.deep_merge(template: { is_header: true })), Serializer.new(attributes) ]
         else raise "Specfied an invalid serializer type: #{type}"
       end
+    end
+
+    ##
+    ## Debugging
+    ##
+
+    def to_s
+      "<serializer => #{self.path || './'}, #{self.template}>"
     end
 
   end
