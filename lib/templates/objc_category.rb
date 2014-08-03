@@ -28,6 +28,10 @@ module Spectra
       self.is_header ? 'h' : 'm'
     end
 
+    def whitespace
+      self.is_header ? "\n" : ''
+    end
+
     ##
     ## Formatting
     ##
