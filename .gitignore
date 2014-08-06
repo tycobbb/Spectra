@@ -20,9 +20,7 @@ tmp
 *.o
 *.a
 mkmf.log
+*.swp
 
-spectrum.rb
 .ruby-version
 .ruby-gemset
-
-*.swp

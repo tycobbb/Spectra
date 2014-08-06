@@ -4,25 +4,63 @@ require 'spectra'
 require 'ostruct'
 require 'optparse'
 
-options = OpenStruct.new
-options.verbose = false
+command_list = %Q(
+subcommands:
+  + create: creates a template spectrum.rb file
+)
 
-OptionParser.new do |opts|
-  opts.banner = 'usage: spectra [-vh]'
- 
+command_descriptions = {
+  base: %Q(
+  Invoke without a subcommand to generate colors from the spectrum.rb in the current directory
+),
+  create: %Q(
+  Creates a template spectrum.rb file populated with instructional defualts in the current directory.
+)}
+
+options = OpenStruct.new
+
+main = OptionParser.new do |opts|
+  opts.banner = 'usage: spectra [options] [subcommand [options]]'
+
+  opts.separator command_descriptions[:base][1..-1]
+  opts.separator "\noptions:"
+  
   opts.on('-v', '--verbose', 'Enables verbose debugging output') do |flag|
-    options.verbose = true
+    options.verbose = flag 
   end
 
   opts.on('-d', '--dry-run', 'Processes colors without writing anything to disk') do |flag|
-    options.dry_run = true
+    options.dry_run = flag
   end
   
-  opts.on('-h', '--help', 'Shows this message') do |flag|
+  opts.on('-h', '--help', 'Shows this message') do 
     puts opts; exit 
   end
 
-end.parse!(ARGV)
+  opts.separator command_list
 
-Spectra.generate(options)
+end
+
+subcommands = {
+  create: OptionParser.new do |opts|
+    opts.banner = 'usage: create'
+    opts.separator command_descriptions[:create][1..-1]
+    
+    opts.separator "\noptions"
+    opts.on('-h', '--help', 'Shows this message') do
+      puts opts; exit
+    end
+  end
+}
+
+main.order! # order parses all possible arguments desctructively (in order, duh)
+subcommand = ARGV.shift.intern
+subcommands[subcommand].order! if subcommand 
+
+case subcommand
+  when :create
+    Spectra.create(options);
+  else
+    Spectra.generate(options)
+end
 
