@@ -20,6 +20,10 @@ module Spectra
       components.each { |key, value| components[key] = self.normalize(value) }
     end
 
+    def self.hexify(components)
+      (components[:red] * 255 << 16) | (components[:green] * 255 << 8) | (components[:blue] * 255)
+    end
+
     def self.valid?(name)
       self.valid.include?(name)
     end
@@ -28,17 +32,12 @@ module Spectra
     ## Helpers
     ##
 
-    def self.componentize_hex(value)
-      hex = value.is_a?(String) ? value.to_i : value
-      Hash.new.tap do |hash| 
-        hash[:red]   = (hex & 0xFF0000) >> 16
-        hash[:green] = (hex & 0x00FF00) >> 8
-        hash[:blue]  = (hex & 0x0000FF)
-      end
+    def self.componentize_hex(hex)
+      { red: (hex & 0xFF0000) >> 16, green: (hex & 0x00FF00) >> 8, blue: (hex & 0x0000FF) }
     end
 
-    def self.componentize_white(value)
-      { red: value, green: value, blue: value }
+    def self.componentize_white(white)
+      { red: white, green: white, blue: white }
     end
 
     ##

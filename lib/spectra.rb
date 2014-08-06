@@ -1,7 +1,7 @@
 
 require 'spectra/version'
-require 'spectra/logger'
-require 'spectra/models'
+require 'spectra/spectrum'
+require 'spectra/utilities/logger'
 
 module Spectra
   
@@ -19,8 +19,8 @@ module Spectra
       logger.terminate "Failed to read spectrum.rb file: #{execption}" 
     end 
 
-    spectra = Root.new
-    spectra.generate(definition)
+    spectrum = Spectrum.new
+    spectrum.generate(definition)
   end 
 
   def self.logger

@@ -1,11 +1,15 @@
 
-require 'spectra/templates/template'
+require 'spectra/views/view'
 
 module Spectra
 
-  class ObjcCategory < Template
+  class ObjcCategory < View 
     
     attr_accessor :is_header
+
+    def self.from_attributes(attributes)
+      [ self.new(attributes.merge(is_header: true)), self.new(attributes) ]
+    end
 
     def initialize(attributes)
       super 
@@ -49,7 +53,7 @@ module Spectra
     ##
 
     def filename
-      "UIColor+#{self.class_prefix}Color.#{self.file_extension}"
+      super || "UIColor+#{self.class_prefix}Color.#{self.file_extension}"
     end
   
   end
