@@ -25,3 +25,4 @@ spectrum.rb
 .ruby-version
 .ruby-gemset
 
+*.swp
