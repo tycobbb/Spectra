@@ -26,7 +26,7 @@ module Spectra
     ## Mustache
     ##
 
-    self.path = 'lib/spectra/views'
+    self.path = File.dirname(__FILE__) 
      
     def self.template_name
        super.split('/').last
