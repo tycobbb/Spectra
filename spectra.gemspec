@@ -20,7 +20,10 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'bundler', '~> 1.6'
   gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'pry'
+  gem.add_development_dependency 'pry-byebug'
 
+  gem.add_runtime_dependency 'claide', '~> 0.6.1'
   gem.add_runtime_dependency 'mustache', '~> 0.99.6'
 end
 

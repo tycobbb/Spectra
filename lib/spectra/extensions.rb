@@ -1,4 +1,15 @@
 
+require  'logger'
+
+class Logger
+  
+  def terminate(message)
+    self.fatal(message)
+    exit
+  end
+
+end
+
 class Array
   
   def hash_from(*keys)

@@ -1,6 +1,5 @@
 
-module Spectra
-  
+module Spectra  
   module Components    
 
     class << self
@@ -56,6 +55,5 @@ module Spectra
     end
 
   end
-
 end
 
