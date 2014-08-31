@@ -11,17 +11,13 @@ class Command < CLAide::Command
   self.command = 'spectra'
   self.summary = 'Serializes colors into a variety of filetypes using a convenient ruby DSL'
 
-  def initialize(argv)
-    super 
-  end
-
   ##
   ## Subcommands
   ##
   
   class Generate < Command 
    
-    self.summary = 'Serializes output color files'
+    self.summary = 'Serializes output color files (default)'
 
     self.description = <<-DESC
       If no subcommand is specified, this is the default.
@@ -34,8 +30,8 @@ class Command < CLAide::Command
     def run
       begin
         definition = IO.read('spectrum.rb')
-      rescue Exception => execption
-        Spectra::logger.terminate "Failed to read spectrum.rb file: #{execption}" 
+      rescue Exception
+        raise Informative, 'Failed to find a spectrum.rb file in the current directory'
       end 
 
       spectrum = Spectrum.new
@@ -56,10 +52,10 @@ class Command < CLAide::Command
     def run
       begin
         IO.copy_stream(File.dirname(__FILE__) + '/spectra/template.rb', 'spectrum.rb')
-      rescue Exception => exception
-        logger.terminate "Failed to create spectrum.rb file: #{exception}"
+      rescue Exception 
+        raise Informative, 'Failed to create spectrum.rb file'
       else
-        logger.info "created #{Dir.pwd}/spectrum.rb"
+        logger.verbose "created #{Dir.pwd}/spectrum.rb"
       end
     end
 
