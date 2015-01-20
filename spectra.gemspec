@@ -19,11 +19,11 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_development_dependency 'bundler', '~> 1.6'
-  gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'pry'
-  gem.add_development_dependency 'pry-byebug'
+  gem.add_development_dependency 'rake', '~> 10.4'
+  gem.add_development_dependency 'pry', '~> 0.10'
+  gem.add_development_dependency 'pry-byebug', '~> 2.0'
 
-  gem.add_runtime_dependency 'claide', '~> 0.6.1'
-  gem.add_runtime_dependency 'mustache', '~> 0.99.6'
+  gem.add_runtime_dependency 'claide', '~> 0.8'
+  gem.add_runtime_dependency 'mustache', '~> 1.0'
 end
 

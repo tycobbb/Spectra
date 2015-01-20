@@ -1,6 +1,6 @@
 
 ##
-## Lintable Exception
+## Exception
 ##
 
 require 'claide'

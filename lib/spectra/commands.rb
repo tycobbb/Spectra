@@ -51,11 +51,13 @@ class Command < CLAide::Command
 
     def run
       begin
-        IO.copy_stream(File.dirname(__FILE__) + '/spectra/template.rb', 'spectrum.rb')
-      rescue Exception 
-        raise Informative, 'Failed to create spectrum.rb file'
+        IO.copy_stream(File.dirname(__FILE__) + '/template.rb', 'spectrum.rb')
+      rescue Exception => exception
+        message  = 'Failed to create spectrum.rb file'
+        message += "\n#{exception}"
+        raise Informative, message
       else
-        logger.verbose "created #{Dir.pwd}/spectrum.rb"
+        Spectra.logger.debug "created #{Dir.pwd}/spectrum.rb"
       end
     end
 
