@@ -58,6 +58,8 @@ class Command < CLAide::Command
   end
 
   class Init < Command
+
+    attr_accessor :source, :destination
     
     self.summary = 'Creates a template spectrum.rb file' 
 
@@ -65,16 +67,27 @@ class Command < CLAide::Command
       Creates a template spectrum.rb file in the current directiory. The template file contains
       instructional defaults to demonstrate spectra's features to the uninitiated.
     DESC
+
+    def initialize(argv)
+      super
+      self.source = File.dirname(__FILE__) + '/template.rb'
+      self.destination = "#{Dir.pwd}/spectrum.rb"
+    end
+
+    def validate!
+      super 
+      raise Informative, "#{self.destination} already exists" if File.file?(self.destination) 
+    end
     
     def run
       begin
-        IO.copy_stream(File.dirname(__FILE__) + '/template.rb', 'spectrum.rb')
+        IO.copy_stream(self.source, self.destination)
       rescue Exception => exception
-        message  = 'Failed to create spectrum.rb file'
+        message  = 'Failed to create spectrum.rb'
         message += "\n#{exception}"
         raise Informative, message
       else
-        Spectra.logger.debug "created #{Dir.pwd}/spectrum.rb"
+        Spectra.logger.debug "[✓] Created #{self.destination}"
       end
     end
 

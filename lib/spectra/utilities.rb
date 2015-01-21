@@ -30,7 +30,7 @@ module Spectra
   def self.logger
     unless @logger
       @logger = Logger.new(STDOUT)
-      @logger.formatter = proc { |sev, date, prog, msg| msg }
+      @logger.formatter = proc { |sev, date, prog, msg| msg + "\n" }
     end
     
     @logger
