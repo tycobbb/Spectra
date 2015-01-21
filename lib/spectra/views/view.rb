@@ -1,7 +1,5 @@
 
 require 'mustache'
-require 'spectra/components'
-require 'spectra/utilities/extensions'
 require 'spectra/views/serializable'
 
 module Spectra

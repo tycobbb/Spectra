@@ -1,6 +1,5 @@
 
-require 'spectra/components'
-require 'spectra/utilities/extensions'
+require 'spectra/models/components'
 
 module Spectra
 

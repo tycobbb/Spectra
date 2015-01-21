@@ -8,10 +8,10 @@ module Spectra
     def serialize(attributes)
       text = self.render(attributes)
       path = self.destination(attributes)
-
-      Spectra.logger.debug "#{Spectra.options.dry_run ? 'would write' : 'writing'} to: #{path}"
+     
+      Spectra.logger.debug "#{Config.dry_run ? 'would write' : 'writing'} to: #{path}"
        
-      if Spectra.options.dry_run
+      if Config.dry_run
         Spectra.logger.debug "\n#{text}"
       else
         File.open(path, 'w+') { |file| file.write(text) }

@@ -1,6 +1,5 @@
-
 ##
-## Exception
+## Exceptions
 ##
 
 require 'claide'
@@ -29,8 +28,48 @@ module Spectra
   end
 
   def self.logger
-    @logger ||= Logger.new(STDOUT)
+    unless @logger
+      @logger = Logger.new(STDOUT)
+      @logger.formatter = proc { |sev, date, prog, msg| msg }
+    end
+    
+    @logger
   end
+end
+
+##
+## Config
+## 
+
+module Spectra
+module Config
+  class << self 
+    def attributes
+      @attributes ||= {}
+    end  
+
+    def respond_to?(name)
+      key = parse_name(name)
+      super || self.attributes[key] 
+    end
+
+    def method_missing(name, *args)
+      key, is_setter = parse_name(name)
+      self.attributes[key] = args[0] if is_setter
+      self.attributes[key]
+    end
+
+    def parse_name(name) 
+      key, is_setter = name.intern, false
+      
+      if /^(\w+)=$/ =~ name
+        key, is_setter = $1.intern, true
+      end
+      
+      return key, is_setter 
+    end
+  end 
+end
 end
 
 ##

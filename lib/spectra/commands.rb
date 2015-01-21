@@ -1,5 +1,6 @@
 
 require 'claide'
+require 'spectra/models/spectrum'
 
 module Spectra
 
@@ -27,15 +28,31 @@ class Command < CLAide::Command
       files at those locations.
     DESC
 
-    def run
+    def self.options
+      [[
+        '--dry-run', 'Prints the would-be output file rather than generating anything' 
+      ]].concat(super)
+    end
+
+    def initialize(argv)
+      # update config from options 
+      Config.dry_run = argv.flag?('dry-run', false)
+      super
+    end
+
+    def validate!
+      super
       begin
-        definition = IO.read('spectrum.rb')
+        @definition = IO.read('spectrum.rb')
       rescue Exception
         raise Informative, 'Failed to find a spectrum.rb file in the current directory'
       end 
+    end
 
-      spectrum = Spectrum.new
-      spectrum.generate(definition)
+    def run
+      # generate the views from the user's spectrum.rb
+      spectrum = Spectra::Spectrum.new
+      spectrum.generate(@definition)
     end
 
   end
@@ -48,7 +65,7 @@ class Command < CLAide::Command
       Creates a template spectrum.rb file in the current directiory. The template file contains
       instructional defaults to demonstrate spectra's features to the uninitiated.
     DESC
-
+    
     def run
       begin
         IO.copy_stream(File.dirname(__FILE__) + '/template.rb', 'spectrum.rb')
