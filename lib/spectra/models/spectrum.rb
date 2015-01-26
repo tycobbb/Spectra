@@ -12,6 +12,9 @@ class Spectrum
   def generate(definition)
     # evaluate color definition file, setup defaults
     self.instance_eval(definition)
+    self.log_report()
+
+    # pull in default formats if we don't have any
     self.formats(:palette, :objc) unless self.views
 
     # render views according to the specification
@@ -52,6 +55,18 @@ class Spectrum
 
   def white(*components)
     components.hash_from(:white, :alpha)
+  end
+
+  ##
+  ## Debug 
+  ##
+
+  def log_report 
+    color_info = self.colors.inject("") do |memo, color|
+      memo += "[∫] Evaluated #{color}\n"
+    end
+    
+    Spectra.logger.debug(color_info)
   end
    
 end

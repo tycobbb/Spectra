@@ -23,7 +23,7 @@ module Serializable
   def write_file(file, text, path)
     Spectra.logger.info "[✓] Generating #{path}"
     if Config.dry_run
-      Spectra.logger.info "\n#{text}"
+      Spectra.logger.info "\n#{text.chomp}"
     else
       file.write(text)
     end

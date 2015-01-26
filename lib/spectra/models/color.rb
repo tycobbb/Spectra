@@ -25,7 +25,10 @@ module Spectra
     ##
 
     def to_s
-      "<color: #{name} colors: #{components.values_at(:red, :green, :blue, :alpha).map{|v| '%.2f' % (v || 0.0) }}>" 
+      string = "color '#{name}'"
+      string = [ :red, :green, :blue, :alpha ].inject(string) do |memo, key| 
+        memo + ' ' + key.to_s[0] + ' %.2f' % (self.components[key] || 0.0)
+      end
     end
 
   end

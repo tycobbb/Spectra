@@ -27,9 +27,15 @@ module Spectra
     attr_accessor :logger
   end
 
+  class Logger < Logger
+    def parse_argv(argv)
+      self.level = argv.flag?('verbose', false) ? Logger::DEBUG : Logger::INFO 
+    end  
+  end
+
   def self.logger
     unless @logger
-      @logger = Logger.new(STDOUT)
+      @logger = Spectra::Logger.new(STDOUT)
       @logger.formatter = proc { |sev, date, prog, msg| msg + "\n" }
     end
     

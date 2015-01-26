@@ -12,6 +12,11 @@ class Command < CLAide::Command
   self.command = 'spectra'
   self.summary = 'Serializes colors into a variety of filetypes using a convenient ruby DSL'
 
+  def initialize(argv)
+    Spectra.logger.parse_argv(argv)
+    super
+  end
+
   ##
   ## Subcommands
   ##
@@ -87,7 +92,7 @@ class Command < CLAide::Command
         message += "\n#{exception}"
         raise Informative, message
       else
-        Spectra.logger.debug "[✓] Created #{self.destination}"
+        Spectra.logger.info "[✓] Created #{self.destination}"
       end
     end
 
