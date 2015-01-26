@@ -9,12 +9,12 @@
 + (UIColor *){{name}}{{#is_header}};{{/is_header}}
 {{^is_header}}
 {
-  {{#white}}
+  {{#grayscale?}}
     return [UIColor colorWithWhite:{{white}} alpha:{{alpha}}];
-  {{/white}}
-  {{^white}}
+  {{/grayscale?}}
+  {{^grayscale?}}
     return [UIColor colorWithRed:{{red}} green:{{green}} blue:{{blue}} alpha:{{alpha}}];
-  {{/white}}
+  {{/grayscale?}}
 }
 
 {{/is_header}}

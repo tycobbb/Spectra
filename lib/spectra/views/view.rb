@@ -71,7 +71,7 @@ module Spectra
 
     attr_accessor :color, :formatters
     
-    def initialize(color, formatters)    
+    def initialize(color, formatters)
       self.color = color 
       self.formatters = formatters
     end
@@ -94,6 +94,10 @@ module Spectra
 
     def name
       self.format(:name, self.color.name)
+    end
+
+    def grayscale?
+      self.color.components[:white] 
     end
 
     def hex

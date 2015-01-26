@@ -9,12 +9,12 @@ extension UIColor {
   
 {{#colors}}
     class func {{name}}() -> UIColor {
-    {{#white}}
+    {{#grayscale?}}
         return UIColor(white: {{white}}, alpha: {{alpha}})
-    {{/white}}
-    {{^white}}
+    {{/grayscale?}}
+    {{^grayscale?}}
         return UIColor(red: {{red}}, green: {{green}}, blue: {{blue}}, alpha: {{alpha}})
-    {{/white}}
+    {{/grayscale?}}
     }
 
 {{/colors}}}
