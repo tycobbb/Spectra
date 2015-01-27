@@ -49,8 +49,8 @@ module Spectra
       end
     end
 
-    def format_color_name(name)
-      self.renamer.call(name, self.prefix)
+    def format_color_name(color)
+      self.renamer.call(color, self.prefix)
     end
 
     def format_color_value(value)
@@ -93,7 +93,7 @@ module Spectra
     ##
 
     def name
-      self.format(:name, self.color.name)
+      self.format(:name, self.color)
     end
 
     def grayscale?

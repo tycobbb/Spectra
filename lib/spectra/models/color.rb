@@ -5,12 +5,21 @@ module Spectra
 
   class Color
     
-    attr_accessor :name, :components
+    attr_accessor :name, :suffix, :components
    
     def initialize(name, components)
-      self.name = name
+      self.name, self.suffix = self.parse_name(name)
       self.components = components
     end 
+
+    def parse_name(name)
+      name_parts = name.to_s.split(/(\d+)/)
+      return name_parts.first, name_parts[1] || ''
+    end
+
+    ##
+    ## Forwarding
+    ##
 
     def respond_to?(name)
       super || Components.valid?(name)

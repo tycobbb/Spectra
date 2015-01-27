@@ -90,7 +90,13 @@ end
 
 class Symbol  
   def camelize(pascal)
-    self.to_s.split('_').map.with_index do |component, index| 
+    self.to_s.camelize(pascal)  
+  end
+end
+
+class String
+  def camelize(pascal)
+    self.split('_').map.with_index do |component, index| 
       !pascal && index == 0 ? component : component.capitalize 
     end.join('') 
   end

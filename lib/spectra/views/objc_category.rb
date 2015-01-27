@@ -45,7 +45,7 @@ module Spectra
     end
 
     def renamer
-      @renamer ||= lambda { |name, prefix| "#{prefix}_#{name.camelize(false)}Color" }
+      @renamer ||= lambda { |color, prefix| "#{prefix}_#{color.name.camelize(false)}Color#{color.suffix}" }
     end
     
     ##

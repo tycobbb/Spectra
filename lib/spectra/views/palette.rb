@@ -6,7 +6,7 @@ module Spectra
   class Palette < View
 
     def renamer
-      @renamer || lambda { |name, prefix| name.camelize(true) }
+      @renamer || lambda { |color, prefix| color.name.camelize(true) + color.suffix }
     end
 
     ##
