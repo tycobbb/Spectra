@@ -2,7 +2,7 @@ Spectra
 ========
 Keep app-specific colors in-sync across all your tools with a single specification!
 
-Spectra is a Ruby DSL for generating color palettes (.clr), Objective-C categories, and Swift extensions. Define a spectrum.rb file, run `spectra`, and your color files synchronize!
+Spectra is a Ruby DSL for generating color palettes (.clr), Objective-C categories, and Swift extensions. Define a spectrum.rb file, run `spectra generate`, and your color files synchronize!
 
 ## Using the DSL: spectrum.rb
 

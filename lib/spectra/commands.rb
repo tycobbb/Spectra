@@ -7,10 +7,10 @@ module Spectra
 class Command < CLAide::Command 
  
   self.abstract_command = true
-  self.default_subcommand = 'generate'
 
   self.command = 'spectra'
   self.summary = 'Serializes colors into a variety of filetypes using a convenient ruby DSL'
+  self.version = VERSION
 
   def initialize(argv)
     Spectra.logger.parse_argv(argv)
