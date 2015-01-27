@@ -7,8 +7,8 @@ format :palette
 format :objc, 'path/to/categories'
 
 ## customize the name generation for a specific format
-# format :objc do |name, prefix|
-#   name.camelize(true)
+# format :objc do |color, prefix|
+#   color.name.camelize(true) + color.suffix
 # end
 
 ## specify the colors to generate 

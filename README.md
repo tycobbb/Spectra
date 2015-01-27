@@ -2,7 +2,7 @@ Spectra
 ========
 Keep app-specific colors in-sync across all your tools with a single specification!
 
-Spectra is a command-line utility and Ruby DSL that generates color palettes (.clr), Objective-C categories, and Swift extensions. Define a spectrum.rb file and then run spectra from the terminal. That's all there is to it.
+Spectra is a Ruby DSL for generating color palettes (.clr), Objective-C categories, and Swift extensions. Define a spectrum.rb file, run `spectra`, and your color files synchronize!
 
 ## Using the DSL: spectrum.rb
 
@@ -21,15 +21,15 @@ formats :palette, :swift
 format :objc, 'path/to/categories'
 
 ## if you want to customize the method/color names
-format :swift, 'path/to/extensions' do |name, prefix|
-  name.camelize(true) # SyntacticRogueRed
+format :swift, 'path/to/extensions' do |color, prefix|
+  color.name.camelize(true) + color.suffix # CoolBlue2
 end
 ```
 
-Specifying colors (optional, but it's pretty pointless not to):
+Specifying colors (*technically* optional, but hey...): 
 ```ruby
 color :red,    (components 255, 0, 130)
-color :gray,   (hex 0xEEEEEE 0.6)
+color :gray,   (hex 0xEEEEEE, 0.6)
 color :white,  (white 1.0)
 color :overlay (components 0.8, 0.7, 0.2, 0.75)
 
@@ -50,6 +50,6 @@ gem install spectra
 
 Or `bundler`:
 ```ruby
-gem 'spectra', '~> 0.1.1'
+gem 'spectra', '~> 0.1'
 ```
 
